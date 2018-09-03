@@ -125,10 +125,22 @@ in [Service Adapter Interface Reference](./adapter-reference.html).
 
 ### <a id="odb-managed-secrets"></a>Store Secrets on BOSH CredHub
 
+This section provides information about how to use ODB-managed secrets to store,
+persist and modify secrets in BOSH CredHub. 
+See the following sections:
+
+- [How ODB Stores Secrets in BOSH CredHub](#secrets-process)
+- [Migrate from Plaintext Secrets to ODB Managed Secrets](#migrating-to-stored-secrets)
+- [Persist Credentials Across Updates](#odb-persisting-creds)
+- [Modifying ODB Managed Secrets](#modifying-secrets)
+
+#### <a id="secrets-process"></a> How ODB Stores Secrets on BOSH CredHub
+
 The service adapter can generate secrets and, instead of writing these secrets
-in plain text in the manifest, use ODB as a proxy to BOSH CredHub Config server.
-To do so, the adapter should generate the manifest with a special notation and
-output the secret as part of the `secrets` map.
+in plaintext in the manifest, use ODB as a proxy to BOSH CredHub Config server.
+To do so, use ODB-managed secrets.
+The service adapter generates a manifest that uses ODB-managed placeholders for secrets
+that you want to store in CredHub, and outputs these secrets as part of the `secrets` map.
 
 For example, consider the following `generate-manifest` output:
 
@@ -140,13 +152,13 @@ For example, consider the following `generate-manifest` output:
   }
 }
 ```
-
-During provision, ODB does the following:
+<br>
+To instruct ODB to store the secrets in CredHub, ODB does the following during provision:
 
 1. Generates a CredHub name for each secret in the `secrets` map in the format
 `/odb/SERVICE-OFFERING-ID/SERVICE-INSTANCE-ID/SECRET-NAME`.
-1. Replaces all occurrences of `((odb_secret:SECRET-NAME))` with the generated
-CredHub name.
+1. Replaces all occurrences of the ODB-managed placeholder, for example
+`((odb_secret:SECRET-NAME))`, with the generated CredHub name.
 1. Deploys the updated manifest.
 
 #### <a id="migrating-to-stored-secrets"></a>Migrate from Plaintext Secrets to ODB Managed Secrets
